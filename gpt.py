@@ -67,6 +67,7 @@ class Head(nn.Module):
         self.key = nn.Linear(n_embed, head_size, bias=False)
         self.query = nn.Linear(n_embed, head_size, bias=False)
         self.value = nn.Linear(n_embed, head_size, bias=False)
+        self.head_size = head_size
         self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
         self.dropout = nn.Dropout(dropout)
 
@@ -75,7 +76,7 @@ class Head(nn.Module):
         k = self.key(x)
         q = self.query(x)
         # compute attention
-        wei = q @ k.transpose(-2,-1) * C ** -0.5 # B T T
+        wei = q @ k.transpose(-2,-1) * self.head_size ** -0.5 # B T T
         wei= wei.masked_fill(self.tril[:T, :T] == 0, float('-inf'))
         # aggregate 
         wei = F.softmax(wei, dim=-1)
