@@ -15,8 +15,9 @@ n_head = 6
 n_layer = 6
 dropout = 0.2
 # ------------
+
 print(device)
-torch.manual_seed(1337)
+torch.manual_seed(619)
 
 # curl https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt --output input.txt
 with open('input.txt', 'r', encoding='utf-8') as f:
@@ -176,30 +177,33 @@ class GPTModel(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
 
-model = GPTModel()
-m = model.to(device)
+if __name__ == "__main__":
+   
 
-# create a PyTorch optimizer
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    model = GPTModel()
+    m = model.to(device)
 
-for iter in range(max_iters):
+    # create a PyTorch optimizer
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
-    # every once in a while evaluate the loss on train and val sets
-    if iter % eval_interval == 0:
-        losses = estimate_loss()
-        print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+    for iter in range(max_iters):
 
-    # sample a batch of data
-    xb, yb = get_batch('train')
+        # every once in a while evaluate the loss on train and val sets
+        if iter % eval_interval == 0:
+            losses = estimate_loss()
+            print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
-    # get loss
-    logits, loss = model(xb, yb)
-    optimizer.zero_grad(set_to_none=True)
-    loss.backward()
-    optimizer.step()
+        # sample a batch of data
+        xb, yb = get_batch('train')
 
-torch.save(m.state_dict(), "nano-shkspr-gpt")
+        # get loss
+        logits, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
 
-# generate from the model
-context = torch.zeros((1, 1), dtype=torch.long, device=device)
-print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
+    torch.save(m.state_dict(), "nano-shkspr-gpt.pth")
+
+    # generate from the model
+    context = torch.zeros((1, 1), dtype=torch.long, device=device)
+    print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
