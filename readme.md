@@ -1,6 +1,8 @@
 Followed the lecture by @karpathy https://www.youtube.com/watch?v=kCc8FmEb1nY
 completely
 
+Character-level decoder-only transformer model implemented in pytorch
+
 Sample generation:
 
 ```
